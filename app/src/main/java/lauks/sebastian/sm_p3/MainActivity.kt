@@ -3,16 +3,29 @@ package lauks.sebastian.sm_p3
 import android.Manifest
 import android.content.Intent
 import android.content.pm.PackageManager
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.provider.MediaStore
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.activity.viewModels
+import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import kotlinx.android.synthetic.main.activity_main.*
+import lauks.sebastian.sm_p3.viewmodel.MainViewModel
+
 
 class MainActivity : AppCompatActivity() {
 
     private val PERMISSION_CODE = 1
 
+    private val mainViewModel:MainViewModel by viewModels()
+
+    private val content = registerForActivityResult(ActivityResultContracts.GetContent()){
+        val bitmap = MediaStore.Images.Media.getBitmap(this.contentResolver, it)
+        mainViewModel.setSelectedBitmap(bitmap)
+        val intent = Intent(this, BoardActivity::class.java)
+        this.startActivity(intent)
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -23,6 +36,11 @@ class MainActivity : AppCompatActivity() {
         btPredefined.setOnClickListener {
             val intent = Intent(this, PredefinedActivity::class.java)
             startActivity(intent)
+        }
+
+        btFromDevice.setOnClickListener {
+            content.launch("image/*")
+
         }
     }
 
