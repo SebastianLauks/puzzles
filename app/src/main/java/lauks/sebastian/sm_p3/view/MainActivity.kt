@@ -1,4 +1,4 @@
-package lauks.sebastian.sm_p3
+package lauks.sebastian.sm_p3.view
 
 import android.Manifest
 import android.content.Intent
@@ -11,6 +11,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import kotlinx.android.synthetic.main.activity_main.*
+import lauks.sebastian.sm_p3.R
 import lauks.sebastian.sm_p3.viewmodel.MainViewModel
 
 

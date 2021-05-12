@@ -1,4 +1,4 @@
-package lauks.sebastian.sm_p3
+package lauks.sebastian.sm_p3.view
 
 import android.annotation.SuppressLint
 import android.content.Context

@@ -1,21 +1,22 @@
-package lauks.sebastian.sm_p3
+package lauks.sebastian.sm_p3.view
 
 import android.annotation.SuppressLint
 import android.content.ClipData
 import android.content.ClipDescription
 import android.graphics.Bitmap
-import android.graphics.BitmapFactory
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.DisplayMetrics
-import android.util.Log
 import android.view.DragEvent
 import android.view.View
 import android.widget.*
-import androidx.activity.viewModels
 import androidx.lifecycle.ViewModelProvider
 import kotlinx.android.synthetic.main.activity_board.*
+import lauks.sebastian.sm_p3.R
+import lauks.sebastian.sm_p3.utils.BitmapsComparer
 import lauks.sebastian.sm_p3.utils.CustomDialogGenerator
+import lauks.sebastian.sm_p3.utils.ImageCutter
+import lauks.sebastian.sm_p3.utils.ImageShuffler
 import lauks.sebastian.sm_p3.viewmodel.MainViewModel
 import java.util.*
 
@@ -58,8 +59,12 @@ class BoardActivity : AppCompatActivity() {
             finish()
         }else {
 
-            cutImage = cutImage(bitmap)
-            cutImageShuffled = shuffleImage(cutImage)
+            val displayMetrics = DisplayMetrics()
+            windowManager.defaultDisplay.getMetrics(displayMetrics)
+            val boardWidth = displayMetrics.widthPixels - 50
+            val boardHeight = displayMetrics.heightPixels - 10
+            cutImage = ImageCutter.cutImage( bitmap, boardWidth, boardHeight)
+            cutImageShuffled = ImageShuffler.shuffleImage(cutImage)
             createBoardLayouts()
             createPatternLayouts()
 
@@ -68,29 +73,7 @@ class BoardActivity : AppCompatActivity() {
     }
 
 
-    private fun shuffleImage(image: List<List<Bitmap>>): List<List<Bitmap>> {
-        var output = mutableListOf<MutableList<Bitmap>>(mutableListOf(), mutableListOf(), mutableListOf())
 
-        var list = mutableListOf<Bitmap>()
-
-        image.forEach {row ->
-            row.forEach {
-               list.add(it)
-            }
-        }
-
-        list.shuffle()
-
-        var listCounter = 0
-        for(i in 0..2){
-            for(j in 0..3){
-                output[i].add(list[listCounter++])
-            }
-        }
-        return output
-
-
-    }
 
     @SuppressLint("ClickableViewAccessibility")
     private fun createBoardLayouts() {
@@ -132,10 +115,10 @@ class BoardActivity : AppCompatActivity() {
                             val indexes = item.text.toString().toInt()
                             val y = indexes % 10
                             val x = (indexes - y) / 10
-                            if(cutImage[i][j].sameAs(cutImageShuffled[x][y])) {
+                            if(BitmapsComparer.areBitmapsEqual(cutImage[i][j], cutImageShuffled[x][y])) {
                                 (v as ImageView).setImageBitmap(cutImage[i][j])
                                 pattern[x][y].setImageDrawable(null)
-                                pattern[x][y].setOnTouchListener { v, event ->
+                                pattern[x][y].setOnTouchListener { _, _ ->
                                     false
                                 }
                                 puzzlesDone++
@@ -172,8 +155,6 @@ class BoardActivity : AppCompatActivity() {
         CustomDialogGenerator.createCustomDialog(this, "Gra ukończona z czasem ${gameTimeS}s.", "OK", ""){
             finish()
         }
-
-        //HERE DIALOG WITH INFO AFTER CLICK - FINISH ACTIVITY
     }
 
     private fun createPatternLayouts(){
@@ -213,8 +194,7 @@ class BoardActivity : AppCompatActivity() {
                     val shadow = View.DragShadowBuilder(v)
                     v.startDragAndDrop(dragData, shadow, null, 0)
                 }
-                //SET ON CLICK HERE
-//                imageView.setOnClickListener {  }
+
                 pattern[i].add(imageView)
                 tableRow.addView(imageView)
 
@@ -229,22 +209,6 @@ class BoardActivity : AppCompatActivity() {
         }
     }
 
-    private fun cutImage(img: Bitmap): List<List<Bitmap>> {
-        val displayMetrics = DisplayMetrics()
-        windowManager.defaultDisplay.getMetrics(displayMetrics)
-        val screenWidth = displayMetrics.widthPixels - 50
-        val screenHeight = displayMetrics.heightPixels - 10
-        val image = Bitmap.createScaledBitmap(img, screenWidth, screenHeight/2, false)
-        val output = mutableListOf<MutableList<Bitmap>>(mutableListOf(), mutableListOf(), mutableListOf())
-        val width = image.width
-        val height = image.height
-        for(i in 0..3){
-            for(j in 0..2){
-                output[j].add(Bitmap.createBitmap(image, (width * i)/4, (height * j)/3, width / 4 , height / 3))
-            }
-        }
-        return output
-    }
 
 
 }
